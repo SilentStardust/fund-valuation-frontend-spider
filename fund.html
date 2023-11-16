@@ -14,8 +14,8 @@
         <div class="modal-content">
             <!-- 模态框中的表单 -->
             <form @submit.prevent="login">
-                <input type="text" v-model="userName" placeholder="个人id" />
-                <input type="password" v-model="password" placeholder="本地个人密钥" />
+                <input type="text" v-model="userName" placeholder="个人id"/>
+                <input type="password" v-model="password" placeholder="本地个人密钥"/>
                 <button type="submit">获取本地信息</button>
             </form>
             <div class="fund-description">
@@ -27,9 +27,9 @@
     </div>
 
     <form @submit.prevent="addOrUpdateFund">
-        <input type="text" v-model="editFund.id" placeholder="基金ID" />
+        <input type="text" v-model="editFund.id" placeholder="基金ID"/>
         <!--        <input type="text" v-model="editFund.name" placeholder="基金名称" />-->
-        <input type="text" v-model.number="editFund.amount" placeholder="投资金额" />
+        <input type="text" v-model.number="editFund.amount" placeholder="投资金额"/>
         <button type="submit">{{ editIndex !== null ? '更新' : '添加' }}</button>
     </form>
 
@@ -83,7 +83,8 @@
 
         <h3>接口选择</h3>
         <h4>天天基金网</h4>
-        抓的接口为：https://fundgz.1234567.com.cn/js/001810.js?rt=1700045826095 (一般基金无法在页面上看到估值，但是该网站接口没做检查，所以可以传入基金id来获取数据)<br/>
+        抓的接口为：https://fundgz.1234567.com.cn/js/001810.js?rt=1700045826095
+        (一般基金无法在页面上看到估值，但是该网站接口没做检查，所以可以传入基金id来获取数据)<br/>
         <b>GET方式</b><br/>
         <b>001810</b>是基金id<br/>
         <b>1700045826095</b>是当前13位时间戳<br/>
@@ -99,7 +100,7 @@
         el: '#app',
         data: {
             funds: [],
-            editFund: { id: '', name: '', amount: '' },
+            editFund: {id: '', name: '', amount: ''},
             editIndex: null,
             password: '',
             userName: '',
@@ -108,7 +109,7 @@
         created() {
             window['jsonpgz'] = (rawData) => {
                 let that = this
-                this.funds.forEach(function(item, index) {
+                this.funds.forEach(function (item, index) {
                     if (item.id != rawData.fundcode) {
                         return
                     }
@@ -133,17 +134,17 @@
             addOrUpdateFund() {
                 if (this.editIndex !== null) {
                     // 更新已有基金信息
-                    this.funds.splice(this.editIndex, 1, { ...this.editFund });
+                    this.funds.splice(this.editIndex, 1, {...this.editFund});
                 } else {
                     // 添加新基金信息
-                    this.funds.push({ ...this.editFund });
+                    this.funds.push({...this.editFund});
                 }
                 this.saveFundsData();
                 this.resetForm();
             },
             editFundData(index) {
                 this.editIndex = index;
-                this.editFund = { ...this.funds[index] };
+                this.editFund = {...this.funds[index]};
             },
             deleteFundData(index) {
                 this.funds.splice(index, 1);
@@ -155,11 +156,11 @@
             },
             resetForm() {
                 this.editIndex = null;
-                this.editFund = { id: '', name: '', amount: '' };
+                this.editFund = {id: '', name: '', amount: ''};
             },
             getFundValuation(fund, index) {
                 const script = document.createElement('script');
-                script.src = `http://fundgz.1234567.com.cn/js/${fund.id}.js?rt=` + new Date().getTime() ;
+                script.src = `http://fundgz.1234567.com.cn/js/${fund.id}.js?rt=` + new Date().getTime();
                 script.async = true;
                 script.onerror = () => {
                     console.error('JSONP request failed');
@@ -191,7 +192,7 @@
                     this.funds = JSON.parse(storedFunds);
                 }
 
-                this.funds.forEach(function(item) {
+                this.funds.forEach(function (item) {
                     item.valuationPercentage = 0
                     item.valuationTime = 'unknown'
                 })
@@ -237,7 +238,7 @@
         background: #f8f9fa;
         padding: 20px;
         border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
     }
 
     input[type="text"],
@@ -362,7 +363,7 @@
         background-color: #fff;
         padding: 20px;
         border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
     }
 
 
