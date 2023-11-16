@@ -124,6 +124,110 @@
         }
     });
 </script>
+<style>
+    #app {
+        max-width: 960px;
+        margin: auto;
+        padding: 20px;
+        font-family: 'Arial', sans-serif;
+    }
 
+    form {
+        margin-bottom: 20px;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        padding: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    button {
+        padding: 10px 20px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color .3s;
+    }
+
+    button[type="submit"] {
+        background-color: #007bff;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    button:not([type="submit"]) {
+        background-color: #6c757d;
+    }
+
+    button:not([type="submit"]):hover {
+        background-color: #5a6268;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    thead {
+        background-color: #007bff;
+        color: white;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #f8f9fa;
+    }
+
+    tfoot {
+        background-color: #e9ecef;
+        font-weight: bold;
+    }
+
+    tfoot td {
+        padding: 10px;
+    }
+
+    button.edit-button {
+        background-color: #ffc107;
+    }
+
+    button.edit-button:hover {
+        background-color: #e0a800;
+    }
+
+    button.delete-button {
+        background-color: #dc3545;
+    }
+
+    button.delete-button:hover {
+        background-color: #bd2130;
+    }
+
+    button.get-valuation-button {
+        background-color: #28a745;
+    }
+
+    button.get-valuation-button:hover {
+        background-color: #218838;
+    }
+</style>
 </body>
 </html>
+
