@@ -16,6 +16,8 @@
         <button type="submit">{{ editIndex !== null ? '更新' : '添加' }}</button>
     </form>
 
+    <button @click="getAllValuations">一键获取所有估值</button>
+
     <table>
         <thead>
         <tr>
@@ -92,6 +94,11 @@
                 } catch (error) {
                     console.error('Error fetching valuation data:', error);
                 }
+            },
+            getAllValuations() {
+                this.funds.forEach((fund, index) => {
+                    this.getFundValuation(fund, index);
+                });
             }
         },
         mounted() {
