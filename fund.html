@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Fund Valuation App</title>
     <!-- 引入Vue.js -->
-    <script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.6.14/vue.min.js"></script>
 </head>
 <body>
 
@@ -16,7 +16,7 @@
         <button type="submit">{{ editIndex !== null ? '更新' : '添加' }}</button>
     </form>
 
-    <button @click="getAllValuations">一键获取所有估值</button>
+    <button @click="getAllValuations">一键刷新所有估值</button>
 
     <table>
         <thead>
@@ -24,9 +24,9 @@
             <th>基金ID</th>
             <th>基金名称</th>
             <th>投资金额</th>
-            <th>操作</th>
             <th>今日预估收益百分比</th>
             <th>预估时间</th>
+            <th>操作</th>
         </tr>
         </thead>
         <tbody>
@@ -34,22 +34,37 @@
             <td>{{ fund.id }}</td>
             <td>{{ fund.name }}</td>
             <td>{{ fund.amount }}</td>
+            <td :class="{ 'profit-positive': fund.valuationPercentage > 0, 'profit-negative': fund.valuationPercentage < 0 }">
+                {{ fund.valuationPercentage }}
+            </td>
+            <td>{{ fund.valuationTime }}</td>
             <td>
                 <button @click="editFundData(index)">编辑</button>
                 <button @click="deleteFundData(index)">删除</button>
                 <button @click="getFundValuation(fund, index)">获取估值</button>
             </td>
-            <td>{{ fund.valuationPercentage }}</td>
-            <td>{{ fund.valuationTime }}</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
             <td colspan="4">今日预估收益合计</td>
-            <td colspan="2">{{ totalValuation }}</td>
+            <td colspan="2" :class="{ 'profit-positive': totalValuation > 0, 'profit-negative': totalValuation < 0 }">
+                {{ totalValuation }}
+            </td>
         </tr>
         </tfoot>
     </table>
+
+    <div class="fund-description">
+        <h3>安全性告知</h3>
+        这是一个<b>纯前端</b>爬虫，数据存储在本地浏览器中（localstorage），无任何后端存储，放不放心使用请自行判断 <br/>
+        预估数据来源：https://www.dayfund.cn/ 担心本应用安全性，也可以自行源网站查看，就是麻烦一些 <br/><br/><br/>
+        <h3>使用前提</h3>
+        <b>纯前端</b>爬虫无法解决cors问题，所以使用本功能前，请安装相应扩展。下列举例为chrome用户<br/><br/>
+        chrome用户请安装：<a target="_blank" href="https://chromewebstore.google.com/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc?utm_source=ext_app_menu">Moesif Origin & CORS Changer</a><br/>
+        扩展安装好之后，平时请关闭插件<img src="data:image/png;base64,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">
+        （cors是浏览器安全性限制，平时不建议跳过该限制），用到本功能再开启。
+    </div>
 </div>
 
 <script>
@@ -95,19 +110,36 @@
                 this.editIndex = null;
                 this.editFund = { id: '', name: '', amount: 0 };
             },
-            async getFundValuation(fund, index) {
-                try {
-                    const response = await fetch(`YOUR_API_ENDPOINT?fundId=${fund.id}`);
-                    const data = await response.json();
-                    this.$set(this.funds, index, {
-                        ...fund,
-                        valuationPercentage: data.percentage,
-                        valuationTime: data.estimatedTime,
+            getFundValuation(fund, index) {
+                const proxyUrl = '';
+
+                // 目标API的完整URL
+                const targetUrl = `https://www.dayfund.cn/ajs/ajaxdata.shtml?showtype=getfundvalue&fundcode=${fund.id}`;
+
+                fetch(proxyUrl + targetUrl)
+                    .then(response => response.text())
+                    .then(data => {
+                        const dataParts = data.split('|'); // 使用'|'分割字符串
+
+                        if(dataParts.length > 5) {
+                            const valuationPercentageString = dataParts[5]; // 获取百分比字符串
+                            // 移除百分号并转换为浮点数
+                            const valuationPercentage = parseFloat(valuationPercentageString.replace('%', ''));
+                            const valuationTime = `${dataParts[9]} ${dataParts[10]}`; // 合并日期和时间
+
+                            this.$set(this.funds, index, {
+                                ...fund,
+                                valuationPercentage, // 更新为提取的百分比
+                                valuationTime, // 更新为合并的预估时间
+                            });
+                            this.saveFundsData(); // 更新LocalStorage数据
+                        } else {
+                            console.error('Error parsing valuation data:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Request failed', error);
                     });
-                    this.saveFundsData(); // 更新LocalStorage数据
-                } catch (error) {
-                    console.error('Error fetching valuation data:', error);
-                }
             },
             getAllValuations() {
                 this.funds.forEach((fund, index) => {
@@ -204,6 +236,14 @@
         padding: 10px;
     }
 
+    .profit-positive {
+        color: red;
+    }
+
+    .profit-negative {
+        color: green;
+    }
+
     button.edit-button {
         background-color: #ffc107;
     }
@@ -227,7 +267,22 @@
     button.get-valuation-button:hover {
         background-color: #218838;
     }
+
+    .fund-description {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f4f4f4;
+        border-left: 4px solid #007bff;
+        color: #333;
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+        .fund-description {
+            padding: 10px;
+        }
+    }
 </style>
+
 </body>
 </html>
-
