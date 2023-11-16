@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fund Valuation App</title>
+    <!-- 引入Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <form @submit.prevent="addOrUpdateFund">
+        <input type="text" v-model="editFund.id" placeholder="基金ID" />
+        <input type="text" v-model="editFund.name" placeholder="基金名称" />
+        <input type="number" v-model.number="editFund.amount" placeholder="金额" />
+        <button type="submit">{{ editIndex !== null ? '更新' : '添加' }}</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>基金ID</th>
+            <th>基金名称</th>
+            <th>投资金额</th>
+            <th>操作</th>
+            <th>今日预估收益百分比</th>
+            <th>预估时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(fund, index) in funds" :key="index">
+            <td>{{ fund.id }}</td>
+            <td>{{ fund.name }}</td>
+            <td>{{ fund.amount }}</td>
+            <td>
+                <button @click="editFundData(index)">编辑</button>
+                <button @click="deleteFundData(index)">删除</button>
+                <button @click="getFundValuation(fund, index)">获取估值</button>
+            </td>
+            <td>{{ fund.valuationPercentage }}</td>
+            <td>{{ fund.valuationTime }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            funds: [],
+            editFund: { id: '', name: '', amount: 0 },
+            editIndex: null
+        },
+        methods: {
+            addOrUpdateFund() {
+                if (this.editIndex !== null) {
+                    // 更新已有基金信息
+                    this.funds.splice(this.editIndex, 1, { ...this.editFund });
+                } else {
+                    // 添加新基金信息
+                    this.funds.push({ ...this.editFund });
+                }
+                this.saveFundsData();
+                this.resetForm();
+            },
+            editFundData(index) {
+                this.editIndex = index;
+                this.editFund = { ...this.funds[index] };
+            },
+            deleteFundData(index) {
+                this.funds.splice(index, 1);
+                this.saveFundsData();
+            },
+            saveFundsData() {
+                localStorage.setItem('fundsData', JSON.stringify(this.funds));
+            },
+            resetForm() {
+                this.editIndex = null;
+                this.editFund = { id: '', name: '', amount: 0 };
+            },
+            async getFundValuation(fund, index) {
+                try {
+                    const response = await fetch(`YOUR_API_ENDPOINT?fundId=${fund.id}`);
+                    const data = await response.json();
+                    this.$set(this.funds, index, {
+                        ...fund,
+                        valuationPercentage: data.percentage,
+                        valuationTime: data.estimatedTime,
+                    });
+                    this.saveFundsData(); // 更新LocalStorage数据
+                } catch (error) {
+                    console.error('Error fetching valuation data:', error);
+                }
+            }
+        },
+        mounted() {
+            // 从localStorage加载基金信息
+            const storedFunds = localStorage.getItem('fundsData');
+            if (storedFunds) {
+                this.funds = JSON.parse(storedFunds);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
