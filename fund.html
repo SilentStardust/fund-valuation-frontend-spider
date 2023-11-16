@@ -43,6 +43,12 @@
             <td>{{ fund.valuationTime }}</td>
         </tr>
         </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">今日预估收益合计</td>
+            <td colspan="2">{{ totalValuation }}</td>
+        </tr>
+        </tfoot>
     </table>
 </div>
 
@@ -53,6 +59,14 @@
             funds: [],
             editFund: { id: '', name: '', amount: 0 },
             editIndex: null
+        },
+        computed: {
+            totalValuation() {
+                return this.funds.reduce((total, fund) => {
+                    const income = (fund.amount * (fund.valuationPercentage || 0)) / 100;
+                    return total + income;
+                }, 0).toFixed(2);
+            }
         },
         methods: {
             addOrUpdateFund() {
