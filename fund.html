@@ -5,10 +5,27 @@
     <title>Fund Valuation App</title>
     <!-- 引入Vue.js -->
     <script src="https://cdn.bootcss.com/vue/2.6.14/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 </head>
 <body>
 
 <div id="app">
+    <div class="modal" v-if="showModal">
+        <div class="modal-content">
+            <!-- 模态框中的表单 -->
+            <form @submit.prevent="login">
+                <input type="text" v-model="userName" placeholder="个人id" />
+                <input type="password" v-model="password" placeholder="本地个人密钥" />
+                <button type="submit">获取本地信息</button>
+            </form>
+            <div class="fund-description">
+                用于加密个人本地信息，及本地多用户数据隔离。<br/>
+                一次性的创建过程，无法修改密钥，自己记牢了，忘了就重建一个个人id，重填一份<br/>
+                技术力够的话，你可以改这个html里的js，实现修改密码，2333，我懒
+            </div>
+        </div>
+    </div>
+
     <form @submit.prevent="addOrUpdateFund">
         <input type="text" v-model="editFund.id" placeholder="基金ID" />
         <!--        <input type="text" v-model="editFund.name" placeholder="基金名称" />-->
@@ -63,11 +80,17 @@
         <h3>安全性告知</h3>
         这是一个<b>纯前端</b>爬虫，数据存储在本地浏览器中（localstorage），无任何后端存储，放不放心使用请自行判断，反正逻辑都在html里，自己看 <br/><br/>
         预估数据来源：<a href="https://www.1234567.com.cn/">天天基金网</a> 担心本应用安全性，也可以自行爬取下面的接口，就是麻烦一些 <br/><br/>
+
+        <h3>接口选择</h3>
+        <h4>天天基金网</h4>
         抓的接口为：https://fundgz.1234567.com.cn/js/001810.js?rt=1700045826095 (一般基金无法在页面上看到估值，但是该网站接口没做检查，所以可以传入基金id来获取数据)<br/>
         <b>GET方式</b><br/>
         <b>001810</b>是基金id<br/>
         <b>1700045826095</b>是当前13位时间戳<br/>
         <b>它的返回符合jsonp格式</b>可以绕过cors限制，可以黑掉<br/>
+        <h4>基金速查网</h4>
+        https://www.dayfund.cn/ajs/ajaxdata.shtml?showtype=getfundvalue&fundcode=001810<br/>
+        不稳定，且纯前端解决cors跨域问题基本上不太可行。天天那个是因为符合jsonp。这个不行
     </div>
 </div>
 
@@ -77,7 +100,10 @@
         data: {
             funds: [],
             editFund: { id: '', name: '', amount: '' },
-            editIndex: null
+            editIndex: null,
+            password: '',
+            userName: '',
+            showModal: true
         },
         created() {
             window['jsonpgz'] = (rawData) => {
@@ -124,7 +150,8 @@
                 this.saveFundsData();
             },
             saveFundsData() {
-                localStorage.setItem('fundsData', JSON.stringify(this.funds));
+                const encryptedData = this.encode(JSON.stringify(this.funds))
+                localStorage.setItem(this.getStoreKey(), encryptedData);
             },
             resetForm() {
                 this.editIndex = null;
@@ -144,18 +171,56 @@
                 this.funds.forEach((fund, index) => {
                     this.getFundValuation(fund, index);
                 });
+            },
+            getStoreKey() {
+                return 'fundsData' + this.userName
+            },
+            getUserStoreKey() {
+                return 'userData' + this.userName
+            },
+            getFundsData() {
+                // 从localStorage加载基金信息
+                const storedFundsEncrypted = localStorage.getItem(this.getStoreKey());
+                let storedFunds = ''
+
+                if (storedFundsEncrypted) {
+                    storedFunds = this.decode(storedFundsEncrypted)
+                }
+
+                if (storedFunds) {
+                    this.funds = JSON.parse(storedFunds);
+                }
+
+                this.funds.forEach(function(item) {
+                    item.valuationPercentage = 0
+                    item.valuationTime = 'unknown'
+                })
+            },
+            encode(string) {
+                const encrypted = CryptoJS.AES.encrypt(string, this.password)
+                return encrypted.toString()
+            },
+            decode(string) {
+                const decryptedBytes = CryptoJS.AES.decrypt(string, this.password);
+                return decryptedBytes.toString(CryptoJS.enc.Utf8);
+            },
+            login() {
+                let check = localStorage.getItem(this.getUserStoreKey())
+
+                if (check !== null) {
+                    if (this.password !== this.decode(check)) {
+                        alert('密码不对吧')
+                        return
+                    }
+                }
+
+                //用密码对密码加密，23333
+                localStorage.setItem(this.getUserStoreKey(), this.encode(this.password));
+                this.getFundsData()
+                this.showModal = false
             }
         },
         mounted() {
-            // 从localStorage加载基金信息
-            const storedFunds = localStorage.getItem('fundsData');
-            if (storedFunds) {
-                this.funds = JSON.parse(storedFunds);
-            }
-            this.funds.forEach(function(item) {
-                item.valuationPercentage = 0
-                item.valuationTime = 'unknown'
-            })
         }
     });
 </script>
@@ -176,6 +241,7 @@
     }
 
     input[type="text"],
+    input[type="password"],
     input[type="number"] {
         padding: 10px;
         margin-right: 10px;
@@ -279,6 +345,26 @@
         color: #333;
         font-size: 0.9em;
     }
+
+    .modal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+
 
     @media (max-width: 768px) {
         .fund-description {
